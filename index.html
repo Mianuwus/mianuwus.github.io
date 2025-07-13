@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Malla Interactiva FVET - Plan 2021</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background-color: #f8fbfd;
+      color: #0b3557;
+    }
+    h1 {
+      color: #0b3557;
+    }
+    .materia {
+      border: 1px solid #8ab6d6;
+      padding: 8px;
+      margin: 4px;
+      border-radius: 6px;
+      display: inline-block;
+      background-color: #e6f1fb;
+      position: relative;
+      transition: background-color 0.3s;
+    }
+    .materia:hover {
+      background-color: #d0e7fa;
+    }
+    .materia.disabled {
+      background-color: #dfe9f1;
+      border-color: #aac8de;
+      opacity: 0.6;
+    }
+    .semestre {
+      margin-bottom: 30px;
+      border-left: 6px solid #1e6091;
+      padding-left: 10px;
+    }
+    .titulo {
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+      color: #14496b;
+    }
+    input[type="checkbox"] {
+      accent-color: #1e6091;
+    }
+  </style>
+</head>
+<body>
+  <h1>Malla Interactiva FVET - Plan 2021</h1>
+  <div id="malla"></div>
+
+  <script>
+    const materias = {
+      "21100": { nombre: "Bioquímica Descriptiva", semestre: 1, previas: [] },
+      "21111": { nombre: "Anatomía Sistemática", semestre: 1, previas: [] },
+      "21102": { nombre: "Citología e Histología General", semestre: 1, previas: [] },
+      "21103": { nombre: "Biofísica", semestre: 1, previas: [] },
+      "21104": { nombre: "Introducción a los Estudios Veterinarios", semestre: 1, previas: [] },
+      "2107": { nombre: "Taller Comunicación oral y escrita", semestre: 1, previas: [] },
+      "21105": { nombre: "Bioquímica Metabólica", semestre: 2, previas: ["21100"] },
+      "21116": { nombre: "Anatomía Topográfica", semestre: 2, previas: ["21111"] },
+      "21107": { nombre: "Histología Sistemática y Embriología", semestre: 2, previas: ["21102"] },
+      "21108": { nombre: "Etnología", semestre: 2, previas: ["21104"] },
+      "21109": { nombre: "Etología y Bienestar animal", semestre: 2, previas: [] },
+      "2105": { nombre: "Taller Herramientas informáticas", semestre: 2, previas: [] },
+      "2106": { nombre: "Inglés técnico", semestre: 2, previas: [] },
+      "21200": { nombre: "Fisiología I", semestre: 3, previas: ["21116", "21105", "21107", "21103"] },
+      "21202": { nombre: "Microbiología", semestre: 3, previas: ["21111", "21105", "21107"] },
+      "21203": { nombre: "Genética", semestre: 3, previas: ["21100", "21107"] },
+      "21204": { nombre: "Bioestadística I", semestre: 3, previas: [] },
+      "21211": { nombre: "Experimentación Animal", semestre: 3, previas: ["21109"] },
+      "2109": { nombre: "Taller de Ciencias Sociales", semestre: 3, previas: ["21104"] },
+      "2110": { nombre: "Taller de Ética", semestre: 3, previas: [] },
+      "21205": { nombre: "Fisiología II", semestre: 4, previas: ["21200", "21109"] },
+      "21201": { nombre: "Inmunología", semestre: 4, previas: ["21111", "21100", "21107", "21202"] },
+      "21206": { nombre: "Patología General", semestre: 4, previas: ["21116", "21200", "21203", "21202"] },
+      "21207": { nombre: "Nutrición", semestre: 4, previas: ["21116", "21200"] },
+      "21208": { nombre: "Parasitología", semestre: 4, previas: ["21200"] },
+      "21209": { nombre: "Extensión veterinaria", semestre: 4, previas: ["21104"] },
+      "21210": { nombre: "Desarrollo Sustentable", semestre: 4, previas: ["21104"] },
+      "21300": { nombre: "Farmacología", semestre: 5, previas: ["21205", "21201"] },
+      "21301": { nombre: "Patología Especial", semestre: 5, previas: ["21205", "21206"] },
+      "21302": { nombre: "Enfermedades Parasitarias", semestre: 5, previas: ["21205", "21208"] },
+      "21303": { nombre: "Toxicología", semestre: 5, previas: ["21205", "21206"] },
+      "21304": { nombre: "Enfermedades Infecciosas de rumiantes", semestre: 5, previas: ["21205", "21201", "21206", "21202"] },
+      "2111": { nombre: "Epidemiología veterinaria", semestre: 5, previas: ["21204", "21202"] },
+      "21305": { nombre: "Técnica Operatoria", semestre: 5, previas: ["21200", "21206"] },
+      "21415": { nombre: "Diseño de Investigación y Bioestadística II", semestre: 6, previas: ["21109", "21204", "21211"] },
+      "21311": { nombre: "Enfermedades Infecciosas no rumiantes", semestre: 6, previas: ["21205", "21201", "21206", "21202"] },
+      "21312": { nombre: "Clínica Semiológica", semestre: 6, previas: ["21205"] },
+      "21306": { nombre: "Medicina de Equinos I", semestre: 6, previas: ["21300", "21206", "21208", "21303"] },
+      "21307": { nombre: "Medicina de Pequeños Animales I", semestre: 6, previas: ["21300", "21206", "21208", "21303"] },
+      "2112": { nombre: "Taller de Etología y Bienestar en Clínica", semestre: 6, previas: ["21109"] },
+      "21403": { nombre: "Métodos Paraclínicos", semestre: 6, previas: ["21205", "21206"] },
+      "21407": { nombre: "Práctica Clínica Obligatoria - pequeños animales y equinos", semestre: 6, previas: ["21300", "21206", "21208", "21303"] },
+      "21406": { nombre: "Economía", semestre: 7, previas: ["21210"] },
+      "21408": { nombre: "Legislación veterinaria", semestre: 7, previas: ["21302", "21311", "21304"] },
+      "21308": { nombre: "Reproducción Animal", semestre: 7, previas: ["21205"] },
+      "21309": { nombre: "Medicina de Rumiantes I", semestre: 7, previas: ["21300", "21206", "21208", "21303", "21304"] },
+      "21400": { nombre: "Medicina de Equinos II", semestre: 7, previas: ["21306", "21301", "21302", "21305"] },
+      "21401": { nombre: "Medicina de Pequeños Animales II", semestre: 7, previas: ["21307", "21301", "21302", "21305"] },
+      "21413": { nombre: "Taller de Epidemiología y Servicios Oficiales Veterinarios", semestre: 7, previas: ["2111", "21302", "21311", "21304"] },
+      "21310": { nombre: "Internado de Salud y Reproducción de los Rumiantes", semestre: 7, previas: ["21300", "21206", "21208", "21303", "21304"] },
+      "21507": { nombre: "Gestión de Empresas", semestre: 8, previas: ["21406"] },
+      "21500": { nombre: "Producción de Bovinos", semestre: 8, previas: ["21309", "21301", "21302", "21305", "21308"] },
+      "21501": { nombre: "Producción de Ovinos y Caprinos", semestre: 8, previas: ["21309", "21301", "21302", "21305", "21308"] },
+      "21502": { nombre: "Alimentación", semestre: 8, previas: ["21207", "21205"] },
+      "21503": { nombre: "Mejora genética", semestre: 8, previas: ["21205", "21203", "21415"] },
+      "21504": { nombre: "Sistemas Productivos", semestre: 8, previas: ["21406"] },
+      "21505": { nombre: "Medicina de Rumiantes II", semestre: 8, previas: ["21309", "21301", "21302", "21305", "21308"] },
+      "21402": { nombre: "Teriogenología", semestre: 8, previas: ["21308"] },
+      "2113": { nombre: "Taller Etología y Bienestar en especies productivas", semestre: 8, previas: ["21109", "21210", "21205"] },
+      "21512": { nombre: "Práctica Clínica Obligatoria - rumiantes", semestre: 8, previas: ["21309", "21301", "21302", "21305", "21308"] },
+      "21405": { nombre: "Salud Pública", semestre: 9, previas: ["2111", "21302", "21311", "21304", "21408"] },
+      "21409": { nombre: "Microbiología alimentaria", semestre: 9, previas: ["2111", "21408"] },
+      "21508": { nombre: "Inocuidad, Ciencia e Industrialización de la Carne", semestre: 9, previas: ["21309", "21301", "21302", "21311", "21500", "21501"] },
+      "21509": { nombre: "Ciencia, Tecnología e Inspección de Leche y Productos lácteos", semestre: 9, previas: ["21309", "21301", "21500"] },
+      "21510": { nombre: "Ciencia, Tecnología e Inocuidad de los Recursos Hidrobiológicos", semestre: 9, previas: ["21300", "21206", "21303", "21302"] },
+      "21404": { nombre: "Avicultura y Tecnología de los Productos Avícolas", semestre: 9, previas: ["21300", "21208", "21303", "21311"] },
+      "21506": { nombre: "Producción y Sanidad de Animales de Granja", semestre: 9, previas: ["21300", "21206", "21208", "21303", "21207"] },
+      "21511": { nombre: "Producción y Sanidad de Organismos Acuáticos", semestre: 9, previas: ["21206", "21208", "21207"] },
+      "21600": { nombre: "Internado Preprofesional I", semestre: 10, previas: ["21500", "21501", "21502", "21503", "21504", "21505", "21402"] },
+      "21601": { nombre: "Internado Preprofesional II", semestre: 10, previas: ["21405", "21409", "21508", "21509", "21510", "21404", "21506", "21511"] },
+      "21602": { nombre: "Taller de Integración y Evaluación Final", semestre: 10, previas: ["21600", "21601"] }
+    };
+
+    const aprobadas = new Set(JSON.parse(localStorage.getItem('materiasAprobadas') || '[]'));
+
+    function renderMalla() {
+      const container = document.getElementById('malla');
+      container.innerHTML = '';
+
+      for (let semestre = 1; semestre <= 10; semestre++) {
+        const bloque = document.createElement('div');
+        bloque.className = 'semestre';
+
+        const titulo = document.createElement('div');
+        titulo.className = 'titulo';
+        titulo.textContent = `Semestre ${semestre}`;
+        bloque.appendChild(titulo);
+
+        for (const [codigo, mat] of Object.entries(materias)) {
+          if (mat.semestre === semestre) {
+            const div = document.createElement('div');
+            div.className = 'materia';
+            const puedeCursar = mat.previas.every(p => aprobadas.has(p));
+            if (!puedeCursar) div.classList.add('disabled');
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = aprobadas.has(codigo);
+            checkbox.disabled = !puedeCursar && !aprobadas.has(codigo);
+
+            checkbox.addEventListener('change', () => {
+              if (checkbox.checked) {
+                aprobadas.add(codigo);
+guardarEstado();
+              } else {
+                aprobadas.delete(codigo);
+guardarEstado();
+              }
+              function guardarEstado() {
+  localStorage.setItem('materiasAprobadas', JSON.stringify([...aprobadas]));
+}
+
+renderMalla();
+            });
+
+            div.appendChild(checkbox);
+            div.appendChild(document.createTextNode(' ' + mat.nombre));
+            bloque.appendChild(div);
+          }
+        }
+
+        container.appendChild(bloque);
+      }
+    }
+
+    renderMalla();
+  </script>
+</body>
+</html>
