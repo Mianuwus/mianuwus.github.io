@@ -4,54 +4,104 @@
   <meta charset="UTF-8">
   <title>Malla Interactiva FVET - Plan 2021</title>
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 20px;
-      background-color: #f8fbfd;
-      color: #0b3557;
-    }
+    body {$1color: #000000;$2}
     h1 {
-      color: #0b3557;
+      color: #000000;
     }
     .materia {
-      border: 1px solid #8ab6d6;
+      border: 1px solid #000000;
       padding: 8px;
       margin: 4px;
       border-radius: 6px;
       display: inline-block;
-      background-color: #e6f1fb;
+      background-color: #000000;
       position: relative;
       transition: background-color 0.3s;
     }
     .materia:hover {
-      background-color: #d0e7fa;
+      background-color: #000000;
     }
     .materia.disabled {
-      background-color: #dfe9f1;
-      border-color: #aac8de;
+      background-color: #000000;
+      border-color: #000000;
       opacity: 0.6;
     }
     .semestre {
       margin-bottom: 30px;
-      border-left: 6px solid #1e6091;
+      border-left: 6px solid #000000;
       padding-left: 10px;
     }
     .titulo {
       font-weight: bold;
       margin-bottom: 10px;
       font-size: 1.2em;
-      color: #14496b;
+      color: #000000;
     }
     input[type="checkbox"] {
-      accent-color: #1e6091;
+      accent-color: #000000;
     }
+    body.oscuro {
+      background-color: #1a1a1a;
+      color: #ffffff;
+    }
+    body.oscuro .materia[data-semestre="1"] { background-color: #FF595E; color: #ffffff; }
+    body.oscuro .materia[data-semestre="2"] { background-color: #FFCA3A; color: #ffffff; }
+    body.oscuro .materia[data-semestre="3"] { background-color: #8AC926; color: #ffffff; }
+    body.oscuro .materia[data-semestre="4"] { background-color: #1982C4; color: #ffffff; }
+    body.oscuro .materia[data-semestre="5"] { background-color: #6A4C93; color: #ffffff; }
+    body.oscuro .materia[data-semestre="6"] { background-color: #FF8FAB; color: #ffffff; }
+    body.oscuro .materia[data-semestre="7"] { background-color: #FFD6A5; color: #ffffff; }
+    body.oscuro .materia[data-semestre="8"] { background-color: #C0FDFB; color: #ffffff; }
+    body.oscuro .materia[data-semestre="9"] { background-color: #B5E48C; color: #ffffff; }
+    body.oscuro .materia[data-semestre="10"] { background-color: #9D4EDD; color: #ffffff; }
+    body.oscuro h1,
+    body.oscuro .titulo {
+      color: #ffffff;
+    }
+    body.oscuro .semestre {
+      margin-bottom: 30px;
+      border-left: 6px solid #ffffff;
+      padding-left: 10px;
+    }
+    
+    body.oscuro .materia {
+      background-color: #ffffff;
+      border-color: #ffffff;
+    }
+    body.oscuro .materia.disabled {
+      background-color: ;
+      border-color: #ffffff;
+      opacity: 0.6;
+    }
+    .materia[data-semestre="1"] { background-color: #FF595E; color: #000000; }
+    .materia[data-semestre="2"] { background-color: #FFCA3A; color: #000000; }
+    .materia[data-semestre="3"] { background-color: #8AC926; color: #000000; }
+    .materia[data-semestre="4"] { background-color: #1982C4; color: #000000; }
+    .materia[data-semestre="5"] { background-color: #6A4C93; color: #000000; }
+    .materia[data-semestre="6"] { background-color: #FF8FAB; color: #000000; }
+    .materia[data-semestre="7"] { background-color: #FFD6A5; color: #000000; }
+    .materia[data-semestre="8"] { background-color: #C0FDFB; color: #000000; }
+    .materia[data-semestre="9"] { background-color: #B5E48C; color: #000000; }
+    .materia[data-semestre="10"] { background-color: #9D4EDD; color: #000000; }
   </style>
 </head>
 <body>
   <h1>Malla Interactiva FVET - Plan 2021</h1>
+  <button onclick="toggleModo()" style="margin-bottom: 15px; padding: 8px 12px; border: none; border-radius: 6px; background-color: #; color: white; cursor: pointer;">
+    Cambiar modo claro/oscuro
+  </button>
   <div id="malla"></div>
 
   <script>
+    function toggleModo() {
+      document.body.classList.toggle("oscuro");
+      localStorage.setItem("modoOscuro", document.body.classList.contains("oscuro"));
+    }
+
+    function guardarEstado() {
+      localStorage.setItem('materiasAprobadas', JSON.stringify([...aprobadas]));
+    }
+
     const materias = {
       "21100": { nombre: "Bioquímica Descriptiva", semestre: 1, previas: [] },
       "21111": { nombre: "Anatomía Sistemática", semestre: 1, previas: [] },
@@ -127,6 +177,9 @@
     };
 
     const aprobadas = new Set(JSON.parse(localStorage.getItem('materiasAprobadas') || '[]'));
+    if (localStorage.getItem("modoOscuro") === "true") {
+      document.body.classList.add("oscuro");
+    }
 
     function renderMalla() {
       const container = document.getElementById('malla');
@@ -145,6 +198,7 @@
           if (mat.semestre === semestre) {
             const div = document.createElement('div');
             div.className = 'materia';
+            div.dataset.semestre = mat.semestre;
             const puedeCursar = mat.previas.every(p => aprobadas.has(p));
             if (!puedeCursar) div.classList.add('disabled');
 
@@ -156,16 +210,11 @@
             checkbox.addEventListener('change', () => {
               if (checkbox.checked) {
                 aprobadas.add(codigo);
-guardarEstado();
               } else {
                 aprobadas.delete(codigo);
-guardarEstado();
               }
-              function guardarEstado() {
-  localStorage.setItem('materiasAprobadas', JSON.stringify([...aprobadas]));
-}
-
-renderMalla();
+              guardarEstado();
+              renderMalla();
             });
 
             div.appendChild(checkbox);
@@ -182,3 +231,4 @@ renderMalla();
   </script>
 </body>
 </html>
+
