@@ -4,28 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Malla Interactiva FVET - Plan 2021</title>
+
   <style>
     body {
       font-family: sans-serif;
       margin: 20px;
       background-color: #f8fbfd;
       color: #0b3557;
-      /* Espacio para que el logo no se superponga al título */
-      padding-top: 60px;
+
+      /* Deja espacio para que el logo no se pise con el título */
+      padding-top: 70px;
     }
 
-    h1 { color: #0b3557; }
+    h1 { color: #0b3557; margin-top: 0; }
 
     /* Logo fijo en esquina superior derecha */
     .logo-esquina {
       position: fixed;
       top: 14px;
       right: 14px;
-      width: 80px;         /* ajustá tamaño acá */
+      width: 80px;     /* tamaño del logo */
       height: auto;
-      opacity: 0.9;        /* un poco más suave */
+      opacity: 0.95;
       z-index: 10;
-      pointer-events: none; /* no molesta al click/scroll */
+      pointer-events: none; /* no molesta al click */
       user-select: none;
     }
 
@@ -62,29 +64,32 @@
     input[type="checkbox"] { accent-color: #1e6091; }
 
     .nota {
-      margin-top: 10px;
+      margin-top: 8px;
+      margin-bottom: 16px;
       font-size: 0.95em;
       color: #2b5876;
       opacity: 0.9;
+      max-width: 900px;
     }
   </style>
 </head>
+
 <body>
-  <!-- Logo -->
-  <img
-    class="logo-esquina"
-    src="Logo aev transparente 1200px azul fondo bkanco.png"
-    alt="Logo AEV"
-  />
+  <!-- Logo (asegurate de que exista /assets/logoaev.png en tu GitHub) -->
+  <img class="logo-esquina" src="assets/logoaev.png" alt="Logo AEV" />
 
   <h1>Malla Interactiva FVET - Plan 2021</h1>
 
   <div class="nota">
+    
   </div>
 
   <div id="malla"></div>
 
   <script>
+    // Basado en ANEXO II (previaturas) + Malla curricular (PDFs provistos).
+    // NOTA: "Análisis clínicos" y "Diagnóstico por imagen" aparecen en la malla y en previaturas,
+    // pero sin código en los PDFs; se usan IDs internos SINCOD-* solo para poder guardarlas.
     const materias = {
       // 1er semestre
       "21100": { nombre: "Bioquímica Descriptiva", semestre: 1, previas: [] },
@@ -95,7 +100,7 @@
 
       // 2do semestre
       "21105": { nombre: "Bioquímica Metabólica", semestre: 2, previas: ["21100"] },
-      "21116": { nombre: "Anatomía Topográfica", semestre: 2, previas: ["21111"] },
+      "21116": { nombre: "Anatomía Topográfica", semestre: 2, previas: ["21111"] }, // código del anexo
       "21107": { nombre: "Histología Sistemática y Embriología", semestre: 2, previas: ["21102"] },
       "21103": { nombre: "Biofísica", semestre: 2, previas: [] },
       "2105":  { nombre: "Taller Herramientas informáticas", semestre: 2, previas: [] },
@@ -108,6 +113,7 @@
       "21203": { nombre: "Genética", semestre: 3, previas: ["21100", "21107"] },
       "21204": { nombre: "Bioestadística I", semestre: 3, previas: [] },
       "21211": { nombre: "Experimentación Animal", semestre: 3, previas: [] },
+      // Corrección según anexo: 2109 = Ciencias Sociales; 2110 = Ética
       "2109":  { nombre: "Taller de Ciencias Sociales", semestre: 3, previas: ["21104"] },
       "2110":  { nombre: "Taller de Ética", semestre: 3, previas: [] },
 
@@ -227,6 +233,9 @@
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
           checkbox.checked = estaAprobada;
+
+          // Si no cumple previas, no permito marcarla como aprobada.
+          // Pero si ya estaba aprobada, permito desmarcarla.
           checkbox.disabled = (!cursable && !estaAprobada);
 
           checkbox.addEventListener("change", () => {
@@ -240,7 +249,7 @@
           div.appendChild(checkbox);
 
           const label = document.createElement("span");
-          // IMPORTANTE: no mostramos el código en pantalla
+          // NO se muestran códigos en pantalla
           label.textContent = ` ${mat.nombre}`;
           div.appendChild(label);
 
